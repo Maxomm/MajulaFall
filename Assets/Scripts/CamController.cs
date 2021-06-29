@@ -1,33 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CamController : MonoBehaviour
+namespace Assets.Scripts
 {
-    [SerializeField] private float rotSpeed = 1;
-    [SerializeField] private Transform target, player;
-    private float mouseX, mouseY;
-    // Start is called before the first frame update
-    void Start()
+    public class CamController : MonoBehaviour
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-    }
+        private float mouseX, mouseY;
+        [SerializeField] private float rotSpeed = 1;
+        [SerializeField] private Transform target, player;
 
-    // Update is called once per frame
-    void Update()
-    {
-        CamControl();
-    }
+        // Start is called before the first frame update
+        private void Start()
+        {
+            Cursor.visible = false; 
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
-    void CamControl()
-    {
-        mouseX += Input.GetAxis("Mouse X") * rotSpeed;
-        mouseY -= Input.GetAxis("Mouse Y") * rotSpeed;
-        mouseY = Mathf.Clamp(mouseY, -75, 75);
+        // Update is called once per frame
+        private void Update()
+        {
+            CamControl();
+        }
 
-        transform.LookAt(target);
+        private void CamControl()
+        {
+            mouseX += Input.GetAxis("Mouse X") * rotSpeed;
+            mouseY -= Input.GetAxis("Mouse Y") * rotSpeed;
 
-        target.rotation = Quaternion.Euler(mouseY, mouseX, 0);
+            mouseY = Mathf.Clamp(mouseY, -75, 75);
+
+            transform.LookAt(target);
+
+            target.rotation = Quaternion.Euler(mouseY, mouseX, 0);
+        }
     }
 }

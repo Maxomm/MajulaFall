@@ -1,79 +1,69 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
-public class LevelController : MonoBehaviour
+namespace Assets.Scripts
 {
-    [SerializeField] private int tileAmount;
-    [SerializeField] private float offSet;
-    [SerializeField] private List<GameObject> tilePrefabs = new List<GameObject>();
-    [SerializeField] private bool generateNew,reloadLevel;
-    [SerializeField] private List<GameObject> levelTiles = new List<GameObject>();
-    [SerializeField] private List<Vector2> levelSeed = new List<Vector2>();
-    // Start is called before the first frame update
-    void Update()
+    [ExecuteInEditMode]
+    public class LevelController : MonoBehaviour
     {
-        if (generateNew)
-        {
-            CreateLevel();
-            generateNew = false;
-        }
+        [SerializeField] private bool generateNew, reloadLevel;
+        [SerializeField] private readonly List<Vector2> levelSeed = new List<Vector2>();
+        [SerializeField] private readonly List<GameObject> levelTiles = new List<GameObject>();
+        [SerializeField] private float offSet;
+        [SerializeField] private int tileAmount;
 
-        if (reloadLevel)
+        [SerializeField] private readonly List<GameObject> tilePrefabs = new List<GameObject>();
+
+        // Start is called before the first frame update
+        private void Update()
         {
+            if (generateNew)
+            {
+                CreateLevel();
+                generateNew = false;
+            }
+
+            if (!reloadLevel) return;
             ReloadLevel();
             reloadLevel = false;
         }
 
-       
-
-    }
-
-    void ReloadLevel()
-    {
-    
-        for (int i = 0; i < levelTiles.Count; i++)
+        private void ReloadLevel()
         {
-            DestroyImmediate(levelTiles[i].gameObject);
+            for (var i = levelTiles.Count - 1; i >= 0; i--) DestroyImmediate(levelTiles[i].gameObject);
+
+            levelTiles.Clear();
+            tileAmount = levelSeed.Count;
+
+            for (var i = 0; i < tileAmount; i++)
+            {
+                var randomTile = (int) levelSeed[i].x;
+                var randomRot = levelSeed[i].y;
+
+                var newTile = Instantiate(tilePrefabs[randomTile], Vector3.zero + Vector3.down * offSet * i,
+                    Quaternion.Euler(90, 0, 0), transform);
+                newTile.transform.GetChild(0).transform.localRotation = Quaternion.Euler(0, 0, randomRot);
+                levelTiles.Add(newTile);
+            }
         }
 
-        levelTiles.Clear();
-        tileAmount = levelSeed.Count;
-
-        for (int i = 0; i < tileAmount; i++)
+        private void CreateLevel()
         {
-            int randomTile = (int)levelSeed[i].x;
-            float randomRot = levelSeed[i].y;
-          
-            GameObject newTile = Instantiate(tilePrefabs[randomTile], Vector3.zero + (Vector3.down * offSet * i), Quaternion.Euler(90, 0, 0),transform);
-            newTile.transform.GetChild(0).transform.localRotation = Quaternion.Euler(0, 0, randomRot);
-            levelTiles.Add(newTile);
-            
-        }
-    }
+            for (var i = levelTiles.Count - 1; i >= 0; i--) DestroyImmediate(levelTiles[i].gameObject);
 
-    void CreateLevel()
-    {
+            levelTiles.Clear();
+            levelSeed.Clear();
 
-        
-
-        for(int i = 0; i < levelTiles.Count; i++)
-        {
-            DestroyImmediate(levelTiles[i].gameObject);
-        }
-
-        levelTiles.Clear();
-        levelSeed.Clear();
-
-        for (int i = 0; i < tileAmount; i++)
-        {
-            int randomTile = Random.Range(0, tilePrefabs.Count);
-            float randomRot = Random.Range(0, 360);
-            GameObject newTile = Instantiate(tilePrefabs[randomTile], Vector3.zero + (Vector3.down * offSet*i),Quaternion.Euler(90,0,0),transform);
-            newTile.transform.GetChild(0).transform.localRotation = Quaternion.Euler(0, 0, randomRot);
-            levelTiles.Add(newTile);
-            levelSeed.Add(new Vector2(randomTile, randomRot));
+            for (var i = 0; i < tileAmount; i++)
+            {
+                var randomTile = Random.Range(0, tilePrefabs.Count);
+                float randomRot = Random.Range(0, 360);
+                var newTile = Instantiate(tilePrefabs[randomTile], Vector3.zero + Vector3.down * offSet * i,
+                    Quaternion.Euler(90, 0, 0), transform);
+                newTile.transform.GetChild(0).transform.localRotation = Quaternion.Euler(0, 0, randomRot);
+                levelTiles.Add(newTile);
+                levelSeed.Add(new Vector2(randomTile, randomRot));
+            }
         }
     }
 }
